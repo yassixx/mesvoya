@@ -14,15 +14,13 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Visite[]    findAll()
  * @method Visite[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class VisiteRepository extends ServiceEntityRepository
-{
-    public function __construct(ManagerRegistry $registry)
-    {
+class VisiteRepository extends ServiceEntityRepository {
+
+    public function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, Visite::class);
     }
 
-    public function add(Visite $entity, bool $flush = false): void
-    {
+    public function add(Visite $entity, bool $flush = false): void {
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
@@ -30,8 +28,7 @@ class VisiteRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(Visite $entity, bool $flush = false): void
-    {
+    public function remove(Visite $entity, bool $flush = false): void {
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
@@ -45,14 +42,36 @@ class VisiteRepository extends ServiceEntityRepository
      * @param type $ordre
      * @return visite[]
      */
-    public function findAllOrderBy($champ, $ordre): array
-    {
+    public function findAllOrderBy($champ, $ordre): array {
         return $this->createQueryBuilder('v')
-                ->orderBy('v.'.$champ, $ordre)
-                ->getQuery()
-                ->getResult();
+                        ->orderBy('v.' . $champ, $ordre)
+                        ->getQuery()
+                        ->getResult();
     }
-    
+
+    /**
+     * Enregistrements dont un champ est egal a une valeur
+     * ou tous les enregistements si la valeur est vide
+     * @param type $champ
+     * @param type $valeur
+     * @return visite[]
+     */
+    public function findByEqualValue($champ, $valeur): array {
+        if ($valeur == "") {
+            return $this->createQueryBuilder('v')
+                            ->orderBy('v.' . $champ, 'ASC')
+                            ->getQuery()
+                            ->getResult();
+        } else {
+            return $this->createQueryBuilder('v')
+                            ->where('v.' . $champ . '=:valeur')
+                            ->setParameter('valeur', $valeur)
+                            ->orderBy('v.datecreation', 'DESC')
+                            ->getQuery()
+                            ->getResult();
+        }
+    }
+
 //    /**
 //     * @return Visite[] Returns an array of Visite objects
 //     */
@@ -67,7 +86,6 @@ class VisiteRepository extends ServiceEntityRepository
 //            ->getResult()
 //        ;
 //    }
-
 //    public function findOneBySomeField($value): ?Visite
 //    {
 //        return $this->createQueryBuilder('v')
